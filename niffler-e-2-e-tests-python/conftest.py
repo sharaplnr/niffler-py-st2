@@ -1,9 +1,8 @@
-import dotenv
-import allure
 import os
 
 import pytest
 from playwright.sync_api import Playwright
+from dotenv import load_dotenv
 
 from pages.base_page import BasePage
 from pages.login_page.login_page import LoginPage
@@ -13,26 +12,16 @@ from pages.profile_page.profile_page import ProfilePage
 
 @pytest.fixture(scope="session", autouse=True)
 def envs():
-    dotenv.load_dotenv()
-
-# @pytest.fixture()
-# def page_init(playwright: Playwright):
-#     browser = playwright.chromium.launch(headless=False)
-#     context = browser.new_context()
-#     page = context.new_page()
-#     yield page
-#     context.close()
-#     browser.close()
+    load_dotenv()
 
 @pytest.fixture()
 def page_init(playwright: Playwright):
-    with playwright.chromium.launch(headless=False) as browser:
-        with browser.new_context() as context:
-            page = context.new_page()
-            yield page
-            if not page.is_closed():
-                page.close()
-
+    browser = playwright.chromium.launch(headless=False)
+    context = browser.new_context()
+    page = context.new_page()
+    yield page
+    context.close()
+    browser.close()
 
 
 @pytest.fixture()
@@ -41,11 +30,11 @@ def base_page(page_init):
 
 @pytest.fixture()
 def login_page(page_init):
-    yield LoginPage(page_init)
+    yield LoginPage(page_init).open(os.getenv("AUTH_URL"))
 
 @pytest.fixture()
 def main_page(page_init):
-    yield MainPage(page_init)
+    yield MainPage(page_init).open(os.getenv("FRONTEND_URL"))
 
 @pytest.fixture()
 def profile_page(page_init):

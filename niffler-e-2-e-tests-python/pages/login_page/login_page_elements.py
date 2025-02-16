@@ -6,17 +6,21 @@ class LoginPageElements:
 
     @property
     def username(self):
-        return self.page.locator("#username")
+        return self.page.locator("//input[@name='username']")
 
     @property
     def password(self):
-        return self.page.locator("#password")
+        return self.page.locator("//input[@name='password']")
 
     @property
-    def sumbit_button(self):
-        return self.page.locator("#submit")
+    def log_in(self):
+        return self.page.locator("//button[contains(text(), 'Log in')]")
 
     @property
-    def sign_up_link(self):
-        return self.page.locator("#signup")
+    def login_in_link(self):
+        return self.page.locator("//a[@href='http://frontend.niffler.dc/main']")
+
+    @property
+    def create_new_acc(self):
+        return self.page.locator("//a[@href='/register']")
 
