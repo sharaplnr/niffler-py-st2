@@ -17,7 +17,7 @@ class LoginPageElements:
         return self.page.locator("//button[contains(text(), 'Log in')]")
 
     @property
-    def login_in_link(self):
+    def log_in_link(self):
         return self.page.locator("//a[@href='http://frontend.niffler.dc/main']")
 
     @property
