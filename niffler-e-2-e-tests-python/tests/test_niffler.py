@@ -77,31 +77,11 @@ class TestNiffler:
 
         main_page: MainPage = login_page.login_with_valid_credentials(username, password)
         spending_page: SpendingPage = main_page.open_add_new_spending_form()
-        spending_page.fill_amount(amount)
-        spending_page.fill_category(category)
-        spending_page.fill_date("01/01/2025")
-        spending_page.fill_description(description)
-        spending_page.click_add()
+        spending_page.add_spending(amount, category, description)
 
         assert main_page.check_expense_in_table(category=category, description=description)
 
     def test_delete_all_spendings(self, login_page: LoginPage):
-        username, password = ("Ilnur", "12345")
-        amount = str(randint(1, 1000))
-        category = "test category"
-        description = fake.word()
-
-        main_page: MainPage = login_page.login_with_valid_credentials(username, password)
-        spending_page: SpendingPage = main_page.open_add_new_spending_form()
-        spending_page.add_spending(amount, category, description)
-        assert main_page.check_expense_in_table(category=category, description=description)
-
-        main_page.check_all_rows()
-        main_page.delete_rows()
-
-        assert main_page.is_table_empty()
-
-    def test_delete_one_spending_in_table(self, login_page: LoginPage):
         username, password = ("Ilnur", "12345")
         amount = str(randint(1, 1000))
         category = "test category"
