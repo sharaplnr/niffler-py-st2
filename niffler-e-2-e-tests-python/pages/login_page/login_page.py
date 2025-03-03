@@ -23,6 +23,18 @@ class LoginPage(BasePage):
         with allure.step("Fill password field"):
             self.elements.password.fill(password)
 
+    def fill_sumbit_password(self, submit_password: str):
+        with allure.step("Fill submit password field"):
+            self.elements.submit_password.fill(submit_password)
+
+    def click_sign_up(self):
+        with allure.step("Click sing up button"):
+            self.elements.sign_up.click()
+
+    def click_log_in(self):
+        with allure.step("Click log in button"):
+            self.elements.log_in.click()
+
     def click_submit_button(self) -> MainPage:
         with allure.step("Click login button"):
             self.elements.log_in.click(timeout=20000)
@@ -31,7 +43,11 @@ class LoginPage(BasePage):
 
     def open_log_in_form(self):
         with allure.step("Open sign up page"):
-            self.elements.log_in_link.click()
+            self.click_log_in()
+
+    def open_create_new_acc_from(self):
+        with allure.step("Open sign in page"):
+            self.elements.create_new_acc.click()
 
     def login_with_valid_credentials(self, username: str, password: str):
         with allure.step("Login with valid credentials"):

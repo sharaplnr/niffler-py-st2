@@ -13,8 +13,20 @@ class LoginPageElements:
         return self.page.locator("//input[@name='password']")
 
     @property
+    def submit_password(self):
+        return self.page.locator("//input[@name='passwordSubmit']")
+
+    @property
     def log_in(self):
         return self.page.locator("//button[contains(text(), 'Log in')]")
+
+    @property
+    def sign_up(self):
+        return self.page.locator("//button[@type='submit']")
+
+    @property
+    def successeful_registered_text(self):
+        return self.page.locator(f"//p[contains(text(), 'Congratulations')]")
 
     @property
     def log_in_link(self):
