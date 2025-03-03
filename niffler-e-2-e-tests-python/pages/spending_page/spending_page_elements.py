@@ -29,6 +29,13 @@ class SpendingPageElements:
     def add_button(self):
         return self.page.locator("//button[@id='save']")
 
+    @property
+    def empty_amount_hint(self):
+        return self.page.locator("//span[contains(text(), 'Amount has to be not less then 0.01')]")
+
+    @property
+    def empty_category_hint(self):
+        return self.page.locator("//span[contains(text(), 'Please choose category')]")
 
 
 

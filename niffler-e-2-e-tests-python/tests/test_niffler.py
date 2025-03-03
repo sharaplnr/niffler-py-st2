@@ -81,6 +81,16 @@ class TestNiffler:
 
         assert main_page.check_expense_in_table(category=category, description=description)
 
+    def test_add_spending_without_amount_and_category(self, login_page: LoginPage):
+        username, password = ("Ilnur", "12345")
+
+        main_page: MainPage = login_page.login_with_valid_credentials(username, password)
+        spending_page: SpendingPage = main_page.open_add_new_spending_form()
+        spending_page.click_add()
+
+        expect(spending_page.elements.empty_amount_hint).to_be_visible()
+        expect(spending_page.elements.empty_category_hint).to_be_visible()
+
     def test_delete_all_spendings(self, login_page: LoginPage):
         username, password = ("Ilnur", "12345")
         amount = str(randint(1, 1000))
