@@ -9,7 +9,7 @@ from pages.spending_page.spending_page import SpendingPage
 fake = Faker()
 
 
-class TestNiffler:
+class TestNifflerIntro:
 
     def test_login_valid_creds(self, login_page: LoginPage):
         main_page: MainPage = login_page.login_with_valid_credentials(username="Ilnur", password="12345")
