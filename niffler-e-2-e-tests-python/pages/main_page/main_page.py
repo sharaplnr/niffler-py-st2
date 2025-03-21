@@ -1,7 +1,7 @@
-import allure
+from __future__ import annotations
 
+import allure
 from pages.base_page import BasePage
-from pages.spending_page.spending_page import SpendingPage
 from pages.main_page.main_page_elements import MainPageElements
 from playwright.sync_api import Page
 
@@ -11,16 +11,17 @@ class MainPage(BasePage):
         super().__init__(page)
         self.elements = MainPageElements(page)
 
-    def open(self, url: str):
-        with allure.step("Open login page"):
+    def open(self, url: str) -> MainPage:
+        with allure.step("Open main page"):
+            main_page: MainPage = MainPage(self.page)
             self.page.goto(url=url, wait_until="load")
-            return self
+
+            return main_page
+
 
     def open_add_new_spending_form(self):
         with allure.step("Open new spending form"):
             self.elements.new_spending_btn.click()
-            spending_page = SpendingPage(self.page)
-            return spending_page
 
     def check_all_rows(self):
         with allure.step("Check all rows in table"):
