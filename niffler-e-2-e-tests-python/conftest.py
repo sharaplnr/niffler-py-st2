@@ -20,7 +20,7 @@ fake = Faker()
 def envs():
     load_dotenv()
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def page_init(playwright: Playwright):
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
@@ -29,23 +29,23 @@ def page_init(playwright: Playwright):
     context.close()
     browser.close()
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def app_user():
     return os.getenv("TEST_USERNAME"), os.getenv("TEST_PASSWORD")
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def frontend_url():
     return os.getenv("FRONTEND_URL")
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def auth_url():
     return os.getenv("AUTH_URL")
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def gateway_url():
     return os.getenv("GATEWAY_URL")
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def auth(login_page: LoginPage, app_user):
     username, password = app_user
     login_page.login_with_valid_credentials(username, password)
@@ -56,19 +56,9 @@ def auth(login_page: LoginPage, app_user):
 
     yield token
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def spends_client(gateway_url, auth) -> SpendHttpClient:
     return SpendHttpClient(gateway_url, auth)
-
-@pytest.fixture(params=[])
-def category(request, spends_client):
-    category_name = request.param
-    current_categories = spends_client.get_categories()
-    category_names = [category["name"] for category in current_categories]
-    if category_name not in category_names:
-        spends_client.add_category(category_name)
-
-    return category_name
 
 @pytest.fixture(params=[])
 def category(request, spends_client):
@@ -114,15 +104,11 @@ def random_credentials(user_credentials):
     """Возвращает кортеж (username, password) для текущего теста."""
     return user_credentials
 
-# @pytest.fixture()
-# def random_category_name():
-#     return fake.word()
-
 @pytest.fixture()
 def base_page(page_init):
     yield BasePage(page_init)
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def login_page(page_init, auth_url):
     LoginPage(page_init).open(auth_url)
     yield LoginPage(page_init).open(auth_url)

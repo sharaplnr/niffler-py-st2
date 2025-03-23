@@ -69,37 +69,3 @@ class TestNifflerIntro:
         login_page.click_sign_up()
 
         expect(login_page.elements.successeful_registered_text).not_to_be_visible()
-
-
-    def test_add_spending(self, spending_page: SpendingPage, main_page: MainPage):
-        amount = str(randint(1, 1000))
-        category = "test category"
-        description = fake.word()
-
-        spending_page.add_spending(amount, category, description)
-
-        assert main_page.check_expense_in_table(category=category, description=description)
-
-    def test_add_spending_without_amount_and_category(self, spending_page: SpendingPage):
-        spending_page.click_add()
-
-        expect(spending_page.elements.empty_amount_hint).to_be_visible()
-        expect(spending_page.elements.empty_category_hint).to_be_visible()
-
-    def test_delete_all_spendings(self, main_page: MainPage, spending_page: SpendingPage):
-        amount = str(randint(1, 1000))
-        category = "test category"
-        description = fake.word()
-
-        spending_page.add_spending(amount, category, description)
-        assert main_page.check_expense_in_table(category=category, description=description)
-
-        main_page.check_all_rows()
-        main_page.delete_rows()
-
-        assert main_page.is_table_empty()
-
-    @TestData.category(TEST_CATEGORY)
-    @TestData.spends({"amount":"414","description":"QA.GURU Python Advanced 2","currency":"RUB","spendDate":"2025-03-19T19:32:19.762Z","category":{"name":TEST_CATEGORY}})
-    def test_spending_is_displayed_in_the_table(self, main_page, category, spends):
-        main_page.check_expense_in_table(amount=spends["amount"], description=spends["description"], category=spends["category"]["name"])

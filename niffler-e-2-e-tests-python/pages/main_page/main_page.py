@@ -4,6 +4,7 @@ import allure
 from pages.base_page import BasePage
 from pages.main_page.main_page_elements import MainPageElements
 from playwright.sync_api import Page
+from utils.date_helper import format_date
 
 
 class MainPage(BasePage):
@@ -39,6 +40,9 @@ class MainPage(BasePage):
             return self.elements.no_spendings_text.is_visible()
 
     def check_expense_in_table(self, category:str = None, amount:str = None, description: str = None, date: str = None):
+        if date:
+            date = format_date(date)
+
         self.page.locator("//tbody/tr[contains(@class,'MuiTableRow-root')]").first.wait_for(timeout=2000)
 
         rows = self.page.locator("//tbody/tr[contains(@class,'MuiTableRow-root')]").all()
