@@ -34,9 +34,11 @@ class SpendingPage(BasePage):
     def click_add(self):
         self.elements.add_button.click()
 
-    def add_spending(self, amount: str, category:str, description:str, date:str = '01/01/2025', currency:str = None):
-        self.fill_amount(amount)
-        self.fill_category(category)
+    def add_spending(self, amount: str = None, category: str = None, description: str = None, date: str = '01/01/2025', currency: str = None):
+        if amount:
+            self.fill_amount(amount)
+        if category:
+            self.fill_category(category)
         if currency:
             self.fill_currency(currency)
         self.fill_date(date)

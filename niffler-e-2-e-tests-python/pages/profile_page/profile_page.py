@@ -21,7 +21,11 @@ class ProfilePage(BasePage):
     def add_categories(self, category_name: str):
         self.elements.add_new_category_field.fill(category_name)
         self.elements.add_new_category_field.press("Enter")
-        print()
+
+    def archive_category(self, category_name: str):
+        self.elements.archive_category_button(category_name).click()
+        self.elements.archive_category_button_agreement.click()
+        self.elements.successeful_archived_pop_up.is_visible()
 
     def get_active_categories(self) -> list[str]:
         self.page.locator("//span[contains(@class, 'MuiChip-label')]").first.wait_for()
@@ -33,5 +37,8 @@ class ProfilePage(BasePage):
         all_categories = self.page.locator("//span[contains(@class, 'MuiChip-label')]").all_inner_texts()
         return all_categories
 
-    def check_category_is_listed(self, category_name: str) -> bool:
+    def check_category_in_listed(self, category_name: str) -> bool:
         assert category_name in self.get_active_categories()
+
+    def check_category_not_in_listed(self, category_name: str) -> bool:
+        assert category_name not in self.get_active_categories()

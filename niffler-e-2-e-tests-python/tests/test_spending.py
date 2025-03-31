@@ -4,25 +4,31 @@ from pages.spending_page.spending_page import SpendingPage
 from playwright.sync_api import expect
 from marks import TestData
 from random import randint
+import pytest
 
 
 class TestSpending:
 
     TEST_CATEGORY: str = "sharap"
 
-    def test_add_spending(self, spending_page: SpendingPage, main_page: MainPage):
-        amount = str(randint(1, 1000))
-        category = "test category"
-        description = fake.word()
+    @pytest.mark.parametrize('delete_spends', [TEST_CATEGORY], indirect=True)
+    def test_add_spending(self, spending_page: SpendingPage, main_page: MainPage, delete_spends):
+        amount: str = str(randint(1, 1000))
+        category: str = delete_spends
+        description: str = fake.word()
 
         spending_page.add_spending(amount, category, description)
 
         assert main_page.check_expense_in_table(category=category, description=description)
 
-    def test_add_spending_without_amount_and_category(self, spending_page: SpendingPage):
-        spending_page.click_add()
+    def test_add_spending_without_amount(self, spending_page: SpendingPage):
+        spending_page.add_spending(category='test category', description='test description')
 
         expect(spending_page.elements.empty_amount_hint).to_be_visible()
+
+    def test_add_spending_without_category(self, spending_page: SpendingPage):
+        spending_page.add_spending(amount='10', description='test description')
+
         expect(spending_page.elements.empty_category_hint).to_be_visible()
 
     def test_delete_all_spendings(self, main_page: MainPage, spending_page: SpendingPage):
@@ -33,9 +39,7 @@ class TestSpending:
         spending_page.add_spending(amount, category, description)
         assert main_page.check_expense_in_table(category=category, description=description)
 
-        main_page.check_all_rows()
-        main_page.delete_rows()
-
+        main_page.delete_all_rows()
         assert main_page.is_table_empty()
 
     @TestData.category(TEST_CATEGORY)

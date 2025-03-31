@@ -21,9 +21,17 @@ class ProfilePageElements:
         return self.page.locator("//input[@type='checkbox']")
 
     def edit_category_button(self, category_name: str):
-        return self.page.locator(f"f//span[contains(text(), '{category_name}')]/"
+        return self.page.locator(f"//span[contains(text(), '{category_name}')]/"
                                  f"../..//button[@aria-label='Edit category']")
 
     def archive_category_button(self, category_name: str):
-        return self.page.locator(f"f//span[contains(text(), '{category_name}')]/"
+        return self.page.locator(f"//span[contains(text(), '{category_name}')]/"
                                  f"../..//button[@aria-label='Archive category']")
+
+    @property
+    def archive_category_button_agreement(self):
+        return self.page.locator("//button[contains(text(), 'Archive')]")
+
+    @property
+    def successeful_archived_pop_up(self):
+        return self.page.locator("//div[contains(text(), 'is archived')]")

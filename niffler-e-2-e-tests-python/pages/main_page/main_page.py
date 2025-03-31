@@ -34,6 +34,18 @@ class MainPage(BasePage):
             self.elements.delete_button.click()
             self.elements.delete_button_in_delete_spendings_form.click()
 
+    def delete_all_rows(self):
+        with allure.step("Delete all spends in table"):
+            self.check_all_rows()
+            self.delete_rows()
+
+    def delete_spend_by_category_name(self, category_name: str):
+        with allure.step(f"Delete spend by category name: {category_name}"):
+            current_category = self.elements.row_by_category_name(category_name)
+            current_category.wait_for(timeout=2000)
+            current_category.click()
+            self.delete_rows()
+
     def is_table_empty(self):
         with allure.step("Check that the table is empty"):
             self.elements.no_spendings_text.wait_for(timeout=2000)

@@ -62,13 +62,22 @@ def spends_client(gateway_url, auth) -> SpendHttpClient:
 
 @pytest.fixture(params=[])
 def category(request, spends_client):
-    category_name = request.param
-    current_categories = spends_client.get_categories()
+    category_name: str = request.param
+    current_categories: dict = spends_client.get_categories()
     category_names = [category["name"] for category in current_categories]
     if category_name not in category_names:
         spends_client.add_category(category_name)
 
     return category_name
+
+@pytest.fixture(params=[])
+def archive_category(request, profile_page):
+    category_name: str = request.param
+    yield
+    profile_page.reload()
+    profile_page.archive_category(category_name)
+    profile_page.check_category_not_in_listed(category_name)
+
 
 @pytest.fixture(params=[])
 def spends(request, spends_client):
@@ -83,6 +92,23 @@ def spends(request, spends_client):
 def spend_update(request, spends_client):
     spends_client.update_spends(request.param)
 
+@pytest.fixture(params=[])
+def delete_spends(request, main_page):
+    category_name: str = request.param
+    yield category_name
+    main_page.delete_spend_by_category_name(category_name)
+
+@pytest.fixture()
+def category_name(request):
+    """Фикстура генерирует и кэширует category_name для текущего теста."""
+    if not hasattr(request.node, "category_name_cache"):
+        category_name = fake.word()
+        request.node.user_credentials_cache = category_name
+    return request.node.category_name_cache
+
+@pytest.fixture()
+def random_category(category_name):
+    return category_name
 
 @pytest.fixture()
 def user_credentials(request):

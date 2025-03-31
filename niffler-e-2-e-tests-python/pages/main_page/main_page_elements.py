@@ -27,3 +27,6 @@ class MainPageElements:
     @property
     def delete_button_in_delete_spendings_form(self):
         return self.page.locator("//div[contains(@class, 'MuiDialogActions-root')]/button[contains(text(), 'Delete')]")
+
+    def row_by_category_name(self, category_name: str):
+        return self.page.locator(f"//span[contains(text(), '{category_name}')]")
