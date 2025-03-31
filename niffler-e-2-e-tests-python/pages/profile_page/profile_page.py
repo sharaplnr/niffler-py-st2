@@ -33,5 +33,5 @@ class ProfilePage(BasePage):
         all_categories = self.page.locator("//span[contains(@class, 'MuiChip-label')]").all_inner_texts()
         return all_categories
 
-    def edit_category(self, category_name: str):
-        pass
+    def check_category_is_listed(self, category_name: str) -> bool:
+        assert category_name in self.get_active_categories()

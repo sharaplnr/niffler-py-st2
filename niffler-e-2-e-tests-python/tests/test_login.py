@@ -1,18 +1,10 @@
 from conftest import main_page
 from pages.login_page.login_page import LoginPage
 from pages.main_page.main_page import MainPage
-from pages.spending_page.spending_page import SpendingPage
 from playwright.sync_api import expect
-from random import randint
-from faker import Faker
-from marks import TestData
-
-fake = Faker()
 
 
-class TestNifflerIntro:
-
-    TEST_CATEGORY: str = "sharap"
+class TestLogin:
 
     def test_login_valid_creds(self, main_page: MainPage):
         expect(main_page.elements.history_of_spendings_title).to_have_text("History of Spendings")

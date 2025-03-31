@@ -9,4 +9,4 @@ class TestProfile:
 
     @TestData.category(fake.word())
     def test_added_category_is_visible_in_profile_list(self, profile_page: ProfilePage, category):
-        assert category in profile_page.get_active_categories()
+        profile_page.check_category_is_listed(category)

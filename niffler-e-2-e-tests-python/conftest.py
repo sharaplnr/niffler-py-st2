@@ -79,6 +79,10 @@ def spends(request, spends_client):
     if spend["id"] in spends_ids:
         spends_client.remove_spends([spend["id"]])
 
+@pytest.fixture(params=[])
+def spend_update(request, spends_client):
+    spends_client.update_spends(request.param)
+
 
 @pytest.fixture()
 def user_credentials(request):
