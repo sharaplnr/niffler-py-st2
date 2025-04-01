@@ -51,7 +51,6 @@ class LoginPage(BasePage):
 
     def login_with_valid_credentials(self, username: str, password: str):
         with allure.step("Login with valid credentials"):
-            # self.open_sign_up_form()
             self.fill_username(username)
             self.fill_password(password)
             return self.click_submit_button()

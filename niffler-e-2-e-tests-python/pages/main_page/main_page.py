@@ -1,9 +1,10 @@
-import allure
+from __future__ import annotations
 
+import allure
 from pages.base_page import BasePage
-from pages.spending_page.spending_page import SpendingPage
 from pages.main_page.main_page_elements import MainPageElements
 from playwright.sync_api import Page
+from utils.date_helper import format_date
 
 
 class MainPage(BasePage):
@@ -11,16 +12,17 @@ class MainPage(BasePage):
         super().__init__(page)
         self.elements = MainPageElements(page)
 
-    def open(self, url: str):
-        with allure.step("Open login page"):
+    def open(self, url: str) -> MainPage:
+        with allure.step("Open main page"):
+            main_page: MainPage = MainPage(self.page)
             self.page.goto(url=url, wait_until="load")
-            return self
+
+            return main_page
+
 
     def open_add_new_spending_form(self):
         with allure.step("Open new spending form"):
             self.elements.new_spending_btn.click()
-            spending_page = SpendingPage(self.page)
-            return spending_page
 
     def check_all_rows(self):
         with allure.step("Check all rows in table"):
@@ -32,12 +34,27 @@ class MainPage(BasePage):
             self.elements.delete_button.click()
             self.elements.delete_button_in_delete_spendings_form.click()
 
-    def is_table_empty(self):
+    def delete_all_rows(self):
+        with allure.step("Delete all spends in table"):
+            self.check_all_rows()
+            self.delete_rows()
+
+    def delete_spend_by_category_name(self, category_name: str):
+        with allure.step(f"Delete spend by category name: {category_name}"):
+            current_category = self.elements.row_by_category_name(category_name)
+            current_category.wait_for(timeout=2000)
+            current_category.click()
+            self.delete_rows()
+
+    def is_table_empty(self) -> bool:
         with allure.step("Check that the table is empty"):
             self.elements.no_spendings_text.wait_for(timeout=2000)
             return self.elements.no_spendings_text.is_visible()
 
-    def check_expense_in_table(self, category:str = None, amount:str = None, description: str = None, date: str = None):
+    def check_expense_in_table(self, category:str = None, amount:str = None, description: str = None, date: str = None) -> bool:
+        if date:
+            date = format_date(date)
+
         self.page.locator("//tbody/tr[contains(@class,'MuiTableRow-root')]").first.wait_for(timeout=2000)
 
         rows = self.page.locator("//tbody/tr[contains(@class,'MuiTableRow-root')]").all()

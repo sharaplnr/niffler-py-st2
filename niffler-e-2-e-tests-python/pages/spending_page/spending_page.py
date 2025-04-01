@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import allure
 from playwright.sync_api import Page
 
@@ -8,6 +10,11 @@ class SpendingPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.elements = SpendingPageElements(page)
+
+    def open(self, url: str):
+        with allure.step("Open spending form"):
+            self.page.goto(url=url, wait_until="load")
+            return self
 
     def fill_amount(self, amount: str):
         self.elements.amount.fill(amount)
@@ -27,10 +34,11 @@ class SpendingPage(BasePage):
     def click_add(self):
         self.elements.add_button.click()
 
-
-    def add_spending(self, amount: str, category:str, description:str, date:str = '01/01/2025', currency:str = None):
-        self.fill_amount(amount)
-        self.fill_category(category)
+    def add_spending(self, amount: str = None, category: str = None, description: str = None, date: str = '01/01/2025', currency: str = None):
+        if amount:
+            self.fill_amount(amount)
+        if category:
+            self.fill_category(category)
         if currency:
             self.fill_currency(currency)
         self.fill_date(date)
