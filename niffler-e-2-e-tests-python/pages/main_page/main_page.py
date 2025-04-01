@@ -46,12 +46,12 @@ class MainPage(BasePage):
             current_category.click()
             self.delete_rows()
 
-    def is_table_empty(self):
+    def is_table_empty(self) -> bool:
         with allure.step("Check that the table is empty"):
             self.elements.no_spendings_text.wait_for(timeout=2000)
             return self.elements.no_spendings_text.is_visible()
 
-    def check_expense_in_table(self, category:str = None, amount:str = None, description: str = None, date: str = None):
+    def check_expense_in_table(self, category:str = None, amount:str = None, description: str = None, date: str = None) -> bool:
         if date:
             date = format_date(date)
 
