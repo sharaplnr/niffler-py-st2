@@ -5,6 +5,10 @@ from playwright.sync_api import Playwright
 from dotenv import load_dotenv
 from faker import Faker
 
+from models.api.category import CategoriesResponse
+from models.api.spend import SpendResponse
+from models.db.spend import Spend
+from models.db.category import Category
 from pages.base_page import BasePage
 from pages.login_page.login_page import LoginPage
 from pages.main_page.main_page import MainPage
@@ -63,8 +67,8 @@ def spends_client(gateway_url, auth) -> SpendHttpClient:
 @pytest.fixture(params=[])
 def category(request, spends_client):
     category_name: str = request.param
-    current_categories: dict = spends_client.get_categories()
-    category_names = [category["name"] for category in current_categories]
+    current_categories: list[CategoriesResponse] = spends_client.get_categories()
+    category_names = [category.name for category in current_categories]
     if category_name not in category_names:
         spends_client.add_category(category_name)
 
@@ -81,12 +85,12 @@ def archive_category(request, profile_page):
 
 @pytest.fixture(params=[])
 def spends(request, spends_client):
-    spend = spends_client.add_spends(request.param)
+    spend: SpendResponse = spends_client.add_spends(request.param)
     yield spend
-    current_spends = spends_client.get_spends()
-    spends_ids = [spend["id"] for spend in current_spends]
-    if spend["id"] in spends_ids:
-        spends_client.remove_spends([spend["id"]])
+    current_spends: list[SpendResponse] = spends_client.get_spends()
+    spends_ids = [spend.id for spend in current_spends]
+    if spend.id in spends_ids:
+        spends_client.remove_spends([spend.id])
 
 @pytest.fixture(params=[])
 def spend_update(request, spends_client):

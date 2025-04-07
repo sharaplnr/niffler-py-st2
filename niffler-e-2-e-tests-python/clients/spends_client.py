@@ -2,6 +2,10 @@ from urllib.parse import urljoin
 
 import requests
 
+from models.api.spend import SpendRequest, SpendResponse
+from models.api.category import CategoryRequest, CategoriesResponse
+
+
 class SpendHttpClient:
 
     session: requests.Session
@@ -16,39 +20,39 @@ class SpendHttpClient:
             'Content-Type': 'application/json'
         })
 
-    def get_categories(self) -> dict:
+    def get_categories(self) -> list[CategoriesResponse]:
         response = self.session.get(urljoin(self.base_url, "/api/categories/all"))
         response.raise_for_status()
-        return response.json()
+        return [CategoriesResponse.model_validate(item) for item in response.json()]
 
-    def get_spends(self) -> dict:
-        response = self.session.get(urljoin(self.base_url, "/api/spends/all"))
+    def get_spends(self) -> list[SpendResponse]:
+        response = self .session.get(urljoin(self.base_url, "/api/spends/all"))
         response.raise_for_status()
-        return response.json()
+        return [SpendResponse.model_validate(item) for item in response.json()]
 
-    def add_category(self, category_name: str) -> dict:
+    def add_category(self, category_name: str) -> CategoryRequest:
         response = self.session.post(urljoin(self.base_url, "/api/categories/add"), json={
             'name': category_name
         })
         response.raise_for_status()
-        return response.json()
+        return CategoryRequest.model_validate(response.json())
 
     def update_category(self, body: dict) -> dict:
         response = self.session.patch(urljoin(self.base_url, "/api/categories/add"), json=body)
         response.raise_for_status()
         return response.json()
 
-    def add_spends(self, body: dict) -> dict:
+    def add_spends(self, spend: SpendRequest) -> SpendResponse:
         url = urljoin(self.base_url, "/api/spends/add")
-        response = self.session.post(url, json=body)
+        response = self.session.post(url, json=spend.model_dump())
         response.raise_for_status()
-        return response.json()
+        return SpendResponse.model_validate(response.json())
 
-    def update_spends(self, body: dict) -> dict:
+    def update_spends(self, body: SpendRequest) -> SpendResponse:
         url = urljoin(self.base_url, "/api/spends/edit")
-        response = self.session.patch(url, json=body)
+        response = self.session.patch(url, json=body.model_dump())
         response.raise_for_status()
-        return response.json()
+        return SpendResponse.model_validate(response.json())
 
     def remove_spends(self, ids: list[str]):
         url = urljoin(self.base_url, "/api/spends/remove")

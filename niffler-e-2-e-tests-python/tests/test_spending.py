@@ -1,4 +1,6 @@
 from conftest import fake
+from models.api.category import Category
+from models.api.spend import SpendRequest, SpendResponse
 from pages.main_page.main_page import MainPage
 from pages.spending_page.spending_page import SpendingPage
 from playwright.sync_api import expect
@@ -43,19 +45,29 @@ class TestSpending:
         assert main_page.is_table_empty()
 
     @TestData.category(TEST_CATEGORY)
-    @TestData.spends({"amount":"414","description":"QA.GURU Python Advanced 2","currency":"RUB",
-                      "spendDate":"2025-03-19T19:32:19.762Z","category":{"name":TEST_CATEGORY}})
+    @TestData.spends(
+        SpendRequest(amount=414,
+              description="QA.GURU Python Advanced 2",
+              currency="RUB",
+              spendDate="2025-03-19T19:32:19.762Z",
+              category=Category(name=TEST_CATEGORY)))
     def test_spending_is_displayed_in_the_table(self, main_page, category, spends):
-        main_page.check_expense_in_table(amount=spends["amount"], description=spends["description"], category=spends["category"]["name"])
+        main_page.check_expense_in_table(amount=spends.amount, description=spends.description, category=spends.category.name)
 
-    @TestData.spends({"amount":"414","description":"QA.GURU Python Advanced 2","currency":"RUB",
-                      "spendDate":"2025-03-19T19:32:19.762Z","category":{"name":TEST_CATEGORY}})
-    def test_update_spending_is_displayed_in_the_table(self, main_page, spends, spends_client):
-        main_page.check_expense_in_table(amount=spends["amount"], description=spends["description"], category=spends["category"]["name"], date=spends["spendDate"])
+    @TestData.spends(
+        SpendRequest(amount=414,
+                     description="QA.GURU Python Advanced 2",
+                     currency="RUB",
+                     spendDate="2025-03-19T19:32:19.762Z",
+                     category=Category(name=TEST_CATEGORY)))
+    def test_update_spending_is_displayed_in_the_table(self, main_page, spends_client, spends):
+        main_page.check_expense_in_table(amount=spends.amount, description=spends.description, category=spends.category.name, date=spends.spendDate)
 
-        spend_id = spends["id"]
-        update_spend_data = spends_client.update_spends({"amount":"999","description":"QA.GURU","currency":"RUB",
-                      "spendDate":"2025-01-01T19:32:19.762Z", "id": spend_id,"category":{"name":"update category"}})
+        spend_id: str = spends.id
 
-        main_page.check_expense_in_table(amount=update_spend_data["amount"], description=update_spend_data["description"],
-                                         category=update_spend_data["category"]["name"], date=update_spend_data["spendDate"])
+        update_spend_data: SpendResponse = spends_client.update_spends(SpendRequest(amount=999, description="QA.GURU", currency="RUB",
+                                                                     spendDate="2025-01-01T19:32:19.762Z", id=spend_id,
+                                                                     category=Category(name="update category")))
+
+        main_page.check_expense_in_table(amount=update_spend_data.amount, description=update_spend_data.description,
+                                         category=update_spend_data.category.name, date=update_spend_data.spendDate)
