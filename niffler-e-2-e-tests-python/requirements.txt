@@ -6,3 +6,6 @@ allure-pytest
 requests
 pydantic
 faker
+psycopg2-binary
+sqlalchemy
+sqlmodel

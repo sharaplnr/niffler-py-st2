@@ -36,3 +36,7 @@ class LoginPageElements:
     def create_new_acc(self):
         return self.page.locator("//a[@href='/register']")
 
+    @property
+    def history_spendings_text_on_main_page(self):
+        return self.page.locator("//div[@id='spendings']/h2")
+
