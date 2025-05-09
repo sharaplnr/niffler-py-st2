@@ -6,17 +6,16 @@ from pages.spending_page.spending_page import SpendingPage
 from playwright.sync_api import expect
 from marks import TestData
 from random import randint
-import pytest
+
 
 
 class TestSpending:
 
-    TEST_CATEGORY: str = "sharap"
+    TEST_CATEGORY: str = 'sharap'
 
-    @pytest.mark.parametrize('delete_spends', [TEST_CATEGORY], indirect=True)
-    def test_add_spending(self, spending_page: SpendingPage, main_page: MainPage, delete_spends):
+    def test_add_spending(self, spending_page: SpendingPage, main_page: MainPage, category_for_spend):
         amount: str = str(randint(1, 1000))
-        category: str = delete_spends
+        category: str = category_for_spend
         description: str = fake.word()
 
         spending_page.add_spending(amount, category, description)
@@ -59,7 +58,7 @@ class TestSpending:
                      description="QA.GURU Python Advanced 2",
                      currency="RUB",
                      spendDate="2025-03-19T19:32:19.762Z",
-                     category=Category(name=TEST_CATEGORY)))
+                     category=Category(name=fake.name())))
     def test_update_spending_is_displayed_in_the_table(self, main_page, spends_client, spends):
         main_page.check_expense_in_table(amount=spends.amount, description=spends.description, category=spends.category.name, date=spends.spendDate)
 

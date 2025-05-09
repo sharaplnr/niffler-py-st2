@@ -1,18 +1,13 @@
 from pydantic import BaseModel
 
 class Category(BaseModel):
-    id: str = None
+    id: str | None = None
     name: str
-    username: str = None
-    archived: bool = None
+    username: str | None = None
+    archived: bool | None = None
 
-class CategoryRequest(BaseModel):
-    id: str
-    category: Category
-    username: str
+class CategoryRequest(Category):
+    pass
 
-class CategoriesResponse(BaseModel):
-    id: str = None
-    name: str
-    username: str = None
-    archived: bool = None
+class CategoriesResponse(Category):
+    pass

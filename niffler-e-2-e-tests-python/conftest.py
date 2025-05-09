@@ -5,10 +5,10 @@ from playwright.sync_api import Playwright
 from dotenv import load_dotenv
 from faker import Faker
 
+from databases.spend_db import SpendDB
 from models.api.category import CategoriesResponse
 from models.api.spend import SpendResponse
-from models.db.spend import Spend
-from models.db.category import Category
+from models.config import Envs
 from pages.base_page import BasePage
 from pages.login_page.login_page import LoginPage
 from pages.main_page.main_page import MainPage
@@ -21,8 +21,16 @@ fake = Faker()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def envs():
+def envs() -> Envs:
     load_dotenv()
+    return Envs(
+        frontend_url=os.getenv("FRONTEND_URL"),
+        auth_url=os.getenv("AUTH_URL"),
+        gateway_url=os.getenv("GATEWAY_URL"),
+        spend_db_url=os.getenv("SPEND_DB_URL"),
+        test_username=os.getenv("TEST_USERNAME"),
+        test_password=os.getenv("TEST_PASSWORD")
+    )
 
 @pytest.fixture()
 def page_init(playwright: Playwright):
@@ -34,24 +42,8 @@ def page_init(playwright: Playwright):
     browser.close()
 
 @pytest.fixture()
-def app_user():
-    return os.getenv("TEST_USERNAME"), os.getenv("TEST_PASSWORD")
-
-@pytest.fixture()
-def frontend_url():
-    return os.getenv("FRONTEND_URL")
-
-@pytest.fixture()
-def auth_url():
-    return os.getenv("AUTH_URL")
-
-@pytest.fixture()
-def gateway_url():
-    return os.getenv("GATEWAY_URL")
-
-@pytest.fixture()
-def auth(login_page: LoginPage, app_user):
-    username, password = app_user
+def auth(login_page: LoginPage, envs):
+    username, password = envs.test_username, envs.test_password
     login_page.login_with_valid_credentials(username, password)
     token = login_page.page.evaluate(expression='window.localStorage.getItem("id_token")')
 
@@ -61,18 +53,20 @@ def auth(login_page: LoginPage, app_user):
     yield token
 
 @pytest.fixture()
-def spends_client(gateway_url, auth) -> SpendHttpClient:
-    return SpendHttpClient(gateway_url, auth)
+def spends_client(envs, auth) -> SpendHttpClient:
+    return SpendHttpClient(envs.gateway_url, auth)
+
+@pytest.fixture(scope="session")
+def spend_db(envs) -> SpendDB:
+    return SpendDB(envs.spend_db_url)
 
 @pytest.fixture(params=[])
-def category(request, spends_client):
+def category(request, spends_client, spend_db):
     category_name: str = request.param
-    current_categories: list[CategoriesResponse] = spends_client.get_categories()
-    category_names = [category.name for category in current_categories]
-    if category_name not in category_names:
-        spends_client.add_category(category_name)
+    category: CategoriesResponse = spends_client.add_category(category_name)
+    yield category
+    spend_db.delete_category(category.id)
 
-    return category_name
 
 @pytest.fixture(params=[])
 def archive_category(request, profile_page):
@@ -96,23 +90,24 @@ def spends(request, spends_client):
 def spend_update(request, spends_client):
     spends_client.update_spends(request.param)
 
-@pytest.fixture(params=[])
-def delete_spends(request, main_page):
-    category_name: str = request.param
-    yield category_name
-    main_page.delete_spend_by_category_name(category_name)
-
 @pytest.fixture()
 def category_name(request):
     """Фикстура генерирует и кэширует category_name для текущего теста."""
     if not hasattr(request.node, "category_name_cache"):
         category_name = fake.word()
         request.node.user_credentials_cache = category_name
-    return request.node.category_name_cache
+    return request.node.user_credentials_cache
 
 @pytest.fixture()
 def random_category(category_name):
     return category_name
+
+@pytest.fixture()
+def category_for_spend(main_page, random_category, spend_db):
+    category_name: str = random_category
+    yield category_name
+    main_page.delete_spend_by_category_name(category_name)
+    spend_db.delete_category_by_name(category_name)
 
 @pytest.fixture()
 def user_credentials(request):
@@ -143,18 +138,17 @@ def base_page(page_init):
     yield BasePage(page_init)
 
 @pytest.fixture()
-def login_page(page_init, auth_url):
-    LoginPage(page_init).open(auth_url)
-    yield LoginPage(page_init).open(auth_url)
+def login_page(page_init, envs):
+    yield LoginPage(page_init).open(envs.auth_url)
 
 @pytest.fixture()
-def spending_page(page_init, auth, frontend_url):
-    yield SpendingPage(page_init).open(url=f"{frontend_url}/spending")
+def spending_page(page_init, auth, envs):
+    yield SpendingPage(page_init).open(url=f"{envs.frontend_url}/spending")
 
 @pytest.fixture()
 def main_page(page_init, auth):
     yield MainPage(page_init)
 
 @pytest.fixture()
-def profile_page(page_init, auth, frontend_url):
-    yield ProfilePage(page_init).open(url=f"{frontend_url}/profile")
+def profile_page(page_init, auth, envs):
+    yield ProfilePage(page_init).open(url=f"{envs.frontend_url}/profile")
